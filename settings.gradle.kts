@@ -1,0 +1,2 @@
+rootProject.name = "domo"
+include(":app")
