@@ -24,18 +24,46 @@
 #
 #   (1) You need a POSIX-compliant shell to run this script. If your /bin/sh is
 #       noncompliant, but you have some other compliant shell such as ksh or
-#       bash, then you need to set the SHELL environment variable to point
-#       to that shell before running this script, e.g.:
-#           SHELL=/usr/bin/ksh ./gradlew
+#       bash, then to run this script, type that shell name before the whole
+#       command line, like:
 #
-#   (2) This script points at the Java installation that ships with Gradle.
-#       If you don't have that Java version, you can install it manually or
-#       set the JAVA_HOME environment variable to point to a compatible
-#       Java installation.
+#           ksh Gradle
+#
+#       Busybox and similar reduced shells will NOT work, because this script
+#       requires all of these POSIX shell features:
+#         * functions;
+#         * expansions «$var», «${var}», «${var:-default}», «${var+SET}»,
+#           «${var#prefix}», «${var%suffix}», and «$( cmd )»;
+#         * compound commands having a testable exit status, especially «case»;
+#         * various built-in commands including «command», «set», and «ulimit».
+#
+#   Important for patching:
+#
+#   (2) This script targets any POSIX shell, so it avoids extensions provided
+#       by Bash, Ksh, etc; in particular arrays are avoided.
+#
+#       The "traditional" practice of packing multiple parameters into a
+#       space-separated string is a well documented source of bugs and security
+#       problems, so this is (mostly) avoided, by progressively accumulating
+#       options in "$@", and eventually passing that to Java.
+#
+#       Where the inherited environment variables (DEFAULT_JVM_OPTS, JAVA_OPTS,
+#       and GRADLE_OPTS) rely on word-splitting, this is performed explicitly;
+#       see the in-line comments for details.
+#
+#       There are tweaks for specific operating systems such as AIX, CygWin,
+#       Darwin, MinGW, and NonStop.
+#
+#   (3) This script is generated from the Groovy template
+#       https://github.com/gradle/gradle/blob/master/subprojects/plugins/src/main/resources/org/gradle/api/internal/plugins/unixStartScript.txt
+#       within the Gradle project.
+#
+#       You can find Gradle at https://github.com/gradle/gradle/.
 #
 ##############################################################################
 
 # Attempt to set APP_HOME
+
 # Resolve links: $0 may be a link
 app_path=$0
 
@@ -157,25 +185,50 @@ if "$cygwin" || "$msys" ; then
         # args, so each arg winds up back in the position where it started, but
         # possibly modified.
         #
-        # NB: a `for` loop evaluates its arg list each iteration, so $@ will be
-        # evaluated according to the current shell state, which may change
-        # if we e.g. set IFS, so we store it in a variable and use the variable.
-        args=$arg
-        # Roll the args list around exactly as many times as the number of
-        # args, so each arg winds up back in the position where it started, but
-        # possibly modified.
-        #
-        # NB: a `for` loop evaluates its arg list each iteration, so $@ will be
-        # evaluated according to the current shell state, which may change
-        # if we e.g. set IFS, so we store it in a variable and use the variable.
-        set -- "$@" "$arg"
+        # NB: a `for` loop captures its iteration list before it begins, so
+        # changing the positional parameters here affects neither the number of
+        # iterations, nor the values presented in `arg`.
+        shift                   # remove old arg
+        set -- "$@" "$arg"      # push replacement arg
     done
-    # escape application args
-    save()
-    {
-        for i do printf %s\\n "$i" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/" ; done
-        echo " "
-    }
-    APP_ARGS=$(save "$@")
-    # Collect all arguments for the java command, following the shell quoting and substitution rules
-    eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.G
+fi
+
+# Collect all arguments for the java command;
+#   * $DEFAULT_JVM_OPTS, $JAVA_OPTS, and $GRADLE_OPTS can contain fragments of
+#     shell script including quotes and variable substitutions, so put them in
+#     double quotes to make sure that they get re-expanded; and
+#   * put everything else in single quotes, so that it's not re-expanded.
+
+set -- \
+        "-Dorg.gradle.appname=$APP_BASE_NAME" \
+        -classpath "$CLASSPATH" \
+        org.gradle.wrapper.GradleWrapperMain \
+        "$@"
+
+# Use "xargs" to parse quoted args.
+#
+# With -n1 it outputs one arg per line, with the quotes and backslashes removed.
+#
+# In Bash we could simply go:
+#
+#   readarray ARGS < <( xargs -n1 <<<"$var" ) &&
+#   set -- "${ARGS[@]}" "$@"
+#
+# but POSIX shell has neither arrays nor command substitution, so instead we
+# post-process each arg (as a line of input to sed) to backslash-escape any
+# character that might be a shell metacharacter, then use eval to reverse
+# that process (while maintaining the separation between arguments), and wrap
+# the whole thing up as a single "set" statement.
+#
+# This will of course break if any of these variables contains a newline or
+# an unmatched quote.
+#
+
+eval "set -- $(
+        printf '%s\n' "$DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS" |
+        xargs -n1 |
+        sed ' s~[^-[:alnum:]+,./:=@_]~\\&~g; ' |
+        tr '\n' ' '
+    )" '"$@"'
+
+exec "$JAVACMD" "$@"
